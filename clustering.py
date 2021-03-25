@@ -1,8 +1,75 @@
 import math as m
 import random as rand
+import time
+import numpy as np
 
-class TimeOutException(Exception):
-    pass
+
+def generate_initial_centroids(data, k):
+    # Seleciona aleatoriamente K linhas para serem os centroides
+    points = np.random.choice(data.shape[0], size=k, replace=False)
+    return data[points]
+
+"""
+    Update_cluster_means
+        Parameters:
+            data : M x N ndarray 
+                observation matrix.
+            labels : int ndarray
+                array of the labels of the observations.
+            k : int
+                The number of centroids (codes).
+        Returns:
+            clusters: k x n ndarray
+            new centroids matrix
+            has_members : ndarray
+                A boolean array indicating which clusters have members.
+"""
+def update_cluster_means(data, labels, k):
+    num_obs = len(data)
+    num_feat = len(data[0])
+    clusters = np.zeros((k, num_feat), dtype=data.dtype)
+
+    # sum of the numbers of obs in each cluster
+    obs_count = np.zeros(k, np.int)
+
+    for i in range(num_obs):
+        label = labels[i] 
+        obs_count[label] += 1
+        clusters[label] += data[i]
+
+    for i in range(k):
+        cluster_size = obs_count[i]
+
+        if cluster_size > 0:
+            # Calculate the centroid of each cluster
+            clusters[i] = clusters[i] / cluster_size
+
+    # Return a boolean array indicating which clusters have members
+    return clusters, obs_count > 0
+
+from scipy.spatial.distance import cdist
+'''
+    assign_clusters
+    Parametros:
+        data: ndarray size M x N
+        Cada linha da array é uma observação.
+        As colunas são os atributos de cada observação
+
+        centroids: ndarray size k x N
+        Cada linha é um centroide
+    Retornos:
+        labels: ndarray size M
+        Uma array contendo o index do cluster atribuido a cada observacao
+        min_dist: ndarray size M
+        Array contendo a distancia da i-ésima observação até o centroide mais proximo
+'''
+def assign_clusters(data, centroids):
+    dists = cdist(data, centroids, 'sqeuclidean')
+    labels = dists.argmin(axis=1)
+    min_dist = dists[np.arange(len(labels)), labels]
+    
+    return labels, min_dist
+
 
 class Clustering:
 
@@ -30,7 +97,8 @@ class Clustering:
     def nMelhores(self, estados, n):
         evaluated_states = list(map(lambda x: (self.avaliar(x), estados.index(x)), estados))
 
-        evaluated_states.sort(reverse = True)
+        # evaluated_states.sort(reverse = True)
+        evaluated_states.sort()
 
         n_melhores = evaluated_states[:n]
 
@@ -91,6 +159,22 @@ class Clustering:
         if melhor:
             return melhor
         return self.estadoNulo()
+
+    # PROBLEMA: GRASP
+    def contrucaoGulosa(self, estado, m, seed, tempo):
+        encerrou = False
+        start = time.process_time
+
+        melhor = self.estadoAleatorio
+
+
+
+    #PROBLEMA: Branch and bound
+    # função de estimativa
+    def estimativa(self, estado, pessimista=True):
+        pass
+
+
 
 
 
