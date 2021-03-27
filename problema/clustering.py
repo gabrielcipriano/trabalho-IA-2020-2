@@ -1,31 +1,10 @@
 '''
 Modulo da classe do problema de clustering.
 '''
-import random as rand
 import numpy as np
 from scipy.spatial.distance import cdist, sqeuclidean
 
-def evaluate_state(min_dists):
-    '''
-        Return: SSE baseado na array de distancias
-        '''
-    return np.sum(min_dists)
-
-def get_diff_obs_state(current_label, k):
-    '''
-        Retorna uma label diferente da label atual entre as k disponiveis
-    '''
-    new_label = rand.randint(0, k-1)
-    while new_label == current_label:
-        new_label = rand.randint(0, k-1)
-    return new_label
-
-def escolhe_melhores(neighbourhood, num_best):
-    '''
-        Retorna os n melhores de uma vizinhança
-    '''
-    neighbourhood = np.sort(neighbourhood, order='sse')
-    return neighbourhood[:num_best]
+from .utils import evaluate_state, get_diff_obs_state
 
 
 class Clustering:
@@ -155,7 +134,7 @@ class Clustering:
 
 # # Descrição da instancia do problema
 # def descricao(self):
-#     pass #TODO
+#     pass TODO
 
 # # Diz se um estado é valido (necessário?) //TODO
 # def valido(self, estado):
@@ -240,14 +219,3 @@ class Clustering:
 # # função de estimativa
 # def estimativa(self, estado, pessimista=True):
 #     pass
-
-
-
-
-
-
-
-
-
-
-

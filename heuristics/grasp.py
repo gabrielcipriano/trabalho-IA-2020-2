@@ -5,7 +5,7 @@ import time
 import random as rand
 import numpy as np
 
-from clustering import Clustering, escolhe_melhores, evaluate_state
+from problema.clustering import Clustering, escolhe_melhores, evaluate_state
 
 def construcao_gulosa(problem: Clustering, state, num_best, max_time):
     '''
