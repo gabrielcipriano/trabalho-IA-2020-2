@@ -26,3 +26,13 @@ def escolhe_melhores(neighbourhood, num_best):
     '''
     neighbourhood = np.sort(neighbourhood, order='sse')
     return neighbourhood[:num_best]
+
+def generate_labels_nbhood(labels, k):
+    '''
+        para cada label dos pontos gera uma label diferente escolhida de maneira aleatoria
+    '''
+    nbhood = np.empty(len(labels), dtype=int)
+    for i, label in enumerate(labels):
+        # Modifica o estado (label) do ponto i
+        nbhood[i] = get_diff_obs_state(label, k)
+    return nbhood

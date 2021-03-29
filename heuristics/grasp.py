@@ -5,7 +5,8 @@ import time
 import random as rand
 import numpy as np
 
-from problema.clustering import Clustering, escolhe_melhores, evaluate_state
+from problema.clustering import Clustering
+from problema.utils import escolhe_melhores, evaluate_state
 
 def construcao_gulosa(problem: Clustering, state, num_best, max_time):
     '''
@@ -22,7 +23,7 @@ def construcao_gulosa(problem: Clustering, state, num_best, max_time):
         aux_centroids = centroids.copy()
         labels, min_dists = problem.assign_clusters(aux_centroids)
 
-        nbhood = problem.generate_nbhood(aux_centroids, labels, min_dists)
+        nbhood = problem.generate_evaluated_nbhood(aux_centroids, labels, min_dists)
         nbhood = escolhe_melhores(nbhood, num_best)
 
         # Pegando index e label do estado vizinho aleatoriamente escolhido
@@ -106,4 +107,4 @@ def grasp(problem: Clustering, k, num_best = 5, max_iter = 20, max_time = 1.):
         end = time.process_time()
         count += 1
 
-    return opt_centroids, count, opt_labels, opt_min_dists
+    return opt_centroids, count, end-start, opt_labels, opt_min_dists

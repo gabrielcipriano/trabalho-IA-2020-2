@@ -3,4 +3,3 @@ pandas>=1.2.3
 seaborn>=0.11.1
 sklearn>=0.0
 matplotlib>=3.3.4
-# git+https://github.com/ 
