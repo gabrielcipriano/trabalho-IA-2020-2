@@ -5,7 +5,7 @@ import random as rand
 import numpy as np
 
 
-def evaluate_state(min_dists):
+def evaluate_dists_state(min_dists):
     '''
         Return: SSE baseado na array de distancias
     '''

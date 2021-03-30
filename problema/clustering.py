@@ -1,13 +1,13 @@
 '''
 Modulo da classe do problema de clustering.
     tipo de estrutura de dados:
-        Numpy 2-dimensional arrays (List comprehension)
+        Numpy 2-dimensional arrays
 '''
 import random as rand
 import numpy as np
 from scipy.spatial.distance import cdist, sqeuclidean
 
-from .utils import evaluate_state, generate_labels_nbhood
+from .utils import evaluate_dists_state, generate_labels_nbhood, get_diff_obs_state
 
 
 class Clustering:
@@ -33,7 +33,7 @@ class Clustering:
         '''
         points = np.random.choice(self.num_obs, size=k, replace=False)
         return self.data[points].copy()
-
+        
     def update_centroids(self, labels, k):
         """ Parameters:
                 labels : int ndarray
@@ -93,6 +93,78 @@ class Clustering:
         min_dists = dists[np.arange(len(labels)), labels]
         return labels, min_dists
 
+    # GENTIC ALGORITHN
+    def evaluate(self, state):
+        """Retorna o sse de um centroide (state)"""
+        min_dists = self.assign_clusters(state)[1]
+        return evaluate_dists_state(min_dists)
+
+    def gerar_populacao(self, populacao, t_pop, k):
+        """Preenche uma população a partir do primeiro individuo da população dada
+        """
+        state = populacao[0]
+        labels = self.assign_clusters(state)[0]
+
+        while len(populacao) < t_pop:
+            new_labels = labels.copy()
+            rand_obs = rand.randrange(0, self.num_obs)
+
+            new_labels[rand_obs] = get_diff_obs_state(labels[rand_obs], k)
+            new_state, has_members = self.update_centroids(new_labels,k)
+
+            if has_members.all():
+                populacao.append(new_state)
+
+    def selecao(self, states):
+        """ função de selecao por roleta (mantendo um unico sobrevivente na população)
+                1º: calcula as probabilidades de cada um sobreviver
+                2º: calcula a faixa de sobrevivência
+                3º: Roda a roleta
+        """
+        total = sum(list(map(self.evaluate, states)))
+        percents = list(map(lambda s: (s, self.evaluate(s)/total),states))
+
+        prob_ranges = list()
+        low_bound = 0
+        for s in percents:
+            prob_ranges.append((s[0], low_bound, low_bound + s[1]))
+            low_bound += s[1]
+
+        # n = rand.random()
+        n = rand.uniform(0,1)
+        for prob in prob_ranges:
+            if n >= prob[1] and n < prob[2]:
+                states.clear()
+                states.append(prob[0])
+
+    def mutacao(self, state):
+        labels = self.assign_clusters(state)[0]
+        k = len(state)
+
+        # define aleatoriamente quantas mutacoes acontecerao nas labels (até 10)
+        for _ in range(rand.randint(1,10)):
+            rand_obs = rand.randrange(0, self.num_obs)
+            labels[rand_obs] = get_diff_obs_state(labels[rand_obs], k)
+
+        new_state = self.update_centroids_safe(state, labels, k)
+
+        return new_state
+
+    def melhor_da_geracao(self, states):
+        num_pop = len(states)
+
+        melhor = states[0].copy()
+        melhor_sse = self.evaluate(states[0])
+
+        for i in range(1, num_pop):
+            sse = self.evaluate(states[i])
+            if sse < melhor_sse:
+                melhor = states[i].copy()
+                melhor_sse = sse
+
+        return melhor, melhor_sse
+
+    #  SIMULATED ANNEALING
     def best_state(self, states):
         """ Retorna o melhor estado em uma lista de estados (centroides).
         """
@@ -100,7 +172,7 @@ class Clustering:
         best_value = np.inf
 
         for state in states:
-            state_value = evaluate_state(self.assign_clusters(state)[1])
+            state_value = self.evaluate(state)
             if state_value < best_value:
                 best = state
                 best_value = state_value
@@ -115,8 +187,8 @@ class Clustering:
         _, state_min_dists = self.assign_clusters(state)
         nb_labels, nb_min_dists = self.assign_clusters(nb_state)
 
-        state_sse = evaluate_state(state_min_dists)
-        nb_sse = evaluate_state(nb_min_dists)
+        state_sse = evaluate_dists_state(state_min_dists)
+        nb_sse = evaluate_dists_state(nb_min_dists)
 
         if nb_sse < state_sse:
             return True, nb_state
@@ -157,7 +229,7 @@ class Clustering:
     def generate_evaluated_nbhood(self, centroids, labels, min_dists):
         ''' gera uma vizinhança do estado atual com cada label acompanhada de seu valor (sse).
         '''
-        sse = evaluate_state(min_dists)
+        sse = evaluate_dists_state(min_dists)
         k = len(centroids)
 
         nbhood = self.__init_evaluated_neighbourhood()
@@ -171,93 +243,3 @@ class Clustering:
             nbhood[i]['sse'] = new_sse
 
         return nbhood
-
-
-
-# # Descrição da instancia do problema
-# def descricao(self):
-#     pass TODO
-
-# # Diz se um estado é valido (necessário?) //TODO
-# def valido(self, estado):
-#     pass
-
-# # retorna estado considerado nulo (Existe um estado nulo?) //TODO
-# def estadoNulo(self):
-#     pass
-
-# # Retorna um estado aleatorio (k centroides aleatorios)
-# def estadoAleatorio(self):
-#     pass
-
-# retorna os n melhores estados (centroides) numa lista de estados
-# def nMelhores(self, estados, n):
-#     evaluated_states = list(map(lambda x: (self.avaliar(x), estados.index(x)), estados))
-
-#     # evaluated_states.sort(reverse = True)
-#     evaluated_states.sort()
-
-#     n_melhores = evaluated_states[:n]
-
-#     # Retorna os n melhores na estrutura (sse, estado)
-#     return n_melhores
-
-# # Retorna tupla (sse, estado) do melhor estado
-# def melhorEstado(self, estados):
-#     melhor_estado = nMelhores(estados, 1)
-#     if melhor_estado:
-#         return melhor_estado[0]
-#     return []
-
-# # Executa a busca pelo metodo de busca passado
-# def busca(self, estado, metodoBusca, tempo, **argumentos):
-#     if argumentos:
-#         metodoBusca(self, estado, tempo, **argumentos)
-#     else:
-#         metodoBusca(self, estado, tempo)
-
-
-# # PROBLEMA: SIMULATED ANNEALING
-# # função que aceita ou não um vizinho de um estado
-# def aceitarVizinho(self, estadoAtual, vizinho, t):
-#     if not self.valido(vizinho):
-#         return False
-#     elif self.melhorEstado([estadoAtual, vizinho]) == vizinho:
-#         return True
-#     else:
-#         valor_vizinho = self.avaliar(vizinho)
-#         valor_atual = self.avaliar(estadoAtual)
-#         # simmulated annealing calc
-#         p = 1/(m.exp((valor_atual - valor_vizinho)/t))
-#         p = p if p >= 0 else -p
-#         n = rand.random()
-#         return n < p
-
-# # PROBLEMA: ALGORITMO GENETICO
-# # função de seleção de sobreviventes
-# def selecao(self, estados):
-#     pass
-
-# # crossover de estados
-# def crossover(self, estado1, estado2):
-#     pass
-
-# # mutação num estado
-# def mutacao(self, estado):
-#     pass
-
-# # gera uma população a partir de um individuo
-# def gerarPopulacao(self, populacao, tamanho):
-#     pass
-
-# # retorna o melhor de uma geração e seu sse (OU SEM SSE?)
-# def melhorDaGeracao(self, estados):
-#     melhor = self.melhorEstado(estados)
-#     if melhor:
-#         return melhor
-#     return self.estadoNulo()
-
-# #PROBLEMA: Branch and bound
-# # função de estimativa
-# def estimativa(self, estado, pessimista=True):
-#     pass

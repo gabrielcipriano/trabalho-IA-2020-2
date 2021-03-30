@@ -6,7 +6,7 @@ import random as rand
 import numpy as np
 
 from problema.clustering import Clustering
-from problema.utils import escolhe_melhores, evaluate_state
+from problema.utils import escolhe_melhores, evaluate_dists_state
 
 def construcao_gulosa(problem: Clustering, state, num_best, max_time):
     '''
@@ -86,7 +86,7 @@ def grasp(problem: Clustering, k, num_best = 5, max_iter = 20, max_time = 1.):
 
     opt_centroids = problem.generate_initial_centroids(k)
     opt_labels, opt_min_dists = problem.assign_clusters(opt_centroids)
-    opt_sse = evaluate_state(opt_min_dists)
+    opt_sse = evaluate_dists_state(opt_min_dists)
 
     while (end-start) < max_time and count < max_iter:
         # Construção
@@ -96,7 +96,7 @@ def grasp(problem: Clustering, k, num_best = 5, max_iter = 20, max_time = 1.):
         new_centroids = local_search(problem, new_centroids, max_time/10)
 
         new_labels, new_min_dists = problem.assign_clusters(new_centroids)
-        new_sse = evaluate_state(new_min_dists)
+        new_sse = evaluate_dists_state(new_min_dists)
 
         if new_sse < opt_sse:
             opt_centroids = new_centroids
