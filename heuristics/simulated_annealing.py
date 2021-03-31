@@ -13,7 +13,7 @@ import time
 from problema.clustering import Clustering
 from problema.utils import generate_labels_nbhood
 
-def simulated_annealing(problema: Clustering, k, t, alfa, min_t, num_iter, tempo = 1.):
+def simulated_annealing(problema: Clustering, k, t, alfa, num_iter, min_t, tempo = 1.):
     """Pertuba o estado atribuindo uma label diferente à um ponto aleatório
     """
     start = time.process_time()

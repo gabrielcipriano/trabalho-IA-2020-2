@@ -30,7 +30,7 @@ def crossover(state1, state2):
         state2[gene] = aux
 
 
-def genetic(problem: Clustering, k, t_pop, taxa_cross, taxa_mutacao, max_sem_melhora = 20, t = 1., max_iter = 2000):
+def genetic(problem: Clustering, k, t_pop, taxa_cross, taxa_mutacao, t = 1., max_sem_melhora = 20, max_iter = 3000):
     """ Parametros : 
             problem : uma instancia do problema de clustering
             k : quantidade de centroides
@@ -58,8 +58,10 @@ def genetic(problem: Clustering, k, t_pop, taxa_cross, taxa_mutacao, max_sem_mel
         problem.gerar_populacao(populacao, t_pop, k)
 
         # Realiza um numero aleatorio de crossovers e mutacoes, 
-        # entre 1 e o tamanho da populacao
-        for _ in range(1, rand.randint(1,t_pop)):
+        # entre metade do tamanho e o tamanho da populacao
+        for _ in range(1, rand.randrange(t_pop//2,t_pop)):
+            if end-start < t:
+                break
             # Crossover
             if ocorre(taxa_cross):
                 x = rand.randrange(len(populacao))
@@ -71,6 +73,8 @@ def genetic(problem: Clustering, k, t_pop, taxa_cross, taxa_mutacao, max_sem_mel
             if ocorre(taxa_mutacao):
                 x = rand.randrange(len(populacao))
                 populacao[x] = problem.mutacao(populacao[x])
+                
+            end = time.process_time()
 
         melhor_da_geracao, melhor_sse_geracao = problem.melhor_da_geracao(populacao)
 

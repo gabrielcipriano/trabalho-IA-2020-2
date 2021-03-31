@@ -33,7 +33,7 @@ class Clustering:
         '''
         points = np.random.choice(self.num_obs, size=k, replace=False)
         return self.data[points].copy()
-        
+
     def update_centroids(self, labels, k):
         """ Parameters:
                 labels : int ndarray
@@ -130,10 +130,10 @@ class Clustering:
             prob_ranges.append((s[0], low_bound, low_bound + s[1]))
             low_bound += s[1]
 
-        # n = rand.random()
-        n = rand.uniform(0,1)
+        n = rand.random()
+        # n = rand.uniform(0,1)
         for prob in prob_ranges:
-            if n >= prob[1] and n < prob[2]:
+            if n >= prob[1] and n <= prob[2]:
                 states.clear()
                 states.append(prob[0])
 
