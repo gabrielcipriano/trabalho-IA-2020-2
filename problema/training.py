@@ -16,8 +16,8 @@ class Training:
         self.problem = problem
         self.ks = ks
         self.t = time
-        self.results_by_k = {k: {} for k in ks}
-        # self.result = self.init_result()
+        # self.results_by_k = {k: {} for k in ks}
+        self.result = self.init_result()
 
     def cartesian_product(self, hparams):
         raise Exception("NotImplementedException")
@@ -25,35 +25,32 @@ class Training:
     def run(self, k, hparam):
         raise Exception("NotImplementedException")
 
-    # def init_result(self):
-    #     result = {}
-    #     result['sse_mean'] = {}
-    #     result['t_mean'] = {}
-    #     result['z_score'] = {}
-    #     result['rank'] = {}
-    #     return result
-
-    def get_result(self):
+    def init_result(self):
         result = {}
-        result["results_by_k"] = self.results_by_k
-        result["hparams"] = self.hparams
+        result['sse_mean'] = {}
+        result['t_mean'] = {}
+        result['z_score'] = {}
+        result['rank'] = {}
         return result
 
+    def get_result(self):
+        return self.result
+
     def train(self, times):
-        r = self.results_by_k
+        r = self.result
         for k in self.ks:
-            r[k]['sse_mean'] = []
-            r[k]['t_mean'] = []
+            r['sse_mean'][k] = []
+            r['t_mean'][k] = []
             for hparam in self.hparams:
                 run_results = [self.run(k, hparam) for _ in range(times)]
                 print(k, hparam, run_results)
                 sse_mean, time_mean = np.mean(run_results, axis=0)
-                r[k]['sse_mean'].append(sse_mean)
-                r[k]['t_mean'].append(time_mean)
-            r[k]['sse_mean'] = np.asarray(r[k]['sse_mean'])
-            r[k]['t_mean'] = np.asarray(r[k]['t_mean'])
-            r[k]['z_score'] = np.nan_to_num(stts.zscore(r[k]['sse_mean']))
-            r[k]['rank'] = stts.rankdata(r[k]['sse_mean'])
+                r['sse_mean'][k].append(sse_mean)
+                r['t_mean'][k].append(time_mean)
+            r['sse_mean'][k] = np.asarray(r['sse_mean'][k])
+            r['t_mean'][k] = np.asarray(r['t_mean'][k])
+            r['z_score'][k] = np.nan_to_num(stts.zscore(r['sse_mean'][k]))
+            r['rank'][k] = stts.rankdata(r['sse_mean'][k])
 
 class TrainGrasp(Training):
     def cartesian_product(self, hparams):
