@@ -33,42 +33,6 @@ class Training:
         result['rank'] = {}
         return result
 
-    # def get_result(self):
-    #     return self.result
-
-    # def trainOld(self, times):
-    #     r = self.result
-    #     for k in self.ks:
-    #         r['sse_mean'][k] = []
-    #         r['t_mean'][k] = []
-    #         for hparam in self.hparams:
-    #             run_results = [self.run(k, hparam) for _ in range(times)]
-    #             print(k, hparam, run_results)
-    #             sse_mean, time_mean = np.mean(run_results, axis=0)
-    #             r['sse_mean'][k].append(sse_mean)
-    #             r['t_mean'][k].append(time_mean)
-    #         r['sse_mean'][k] = np.asarray(r['sse_mean'][k])
-    #         r['t_mean'][k] = np.asarray(r['t_mean'][k])
-    #         r['z_score'][k] = np.nan_to_num(stts.zscore(r['sse_mean'][k]))
-    #         r['rank'][k] = stts.rankdata(r['sse_mean'][k])
-
-    # list by k
-    # def train(self, times):
-    #     r = self.result
-    #     for k in r:
-    #         r[k]['sse_mean'] = []
-    #         r[k]['t_mean'] = []
-    #         for hparam in self.hparams:
-    #             run_results = [self.run(k, hparam) for _ in range(times)]
-    #             # print(k, hparam, run_results)
-    #             sse_mean, time_mean = np.mean(run_results, axis=0)
-    #             r[k]['sse_mean'].append(sse_mean)
-    #             r[k]['t_mean'].append(time_mean)
-    #         r[k]['sse_mean'] = np.asarray(r[k]['sse_mean'])
-    #         r[k]['t_mean'] = np.asarray(r[k]['t_mean'])
-    #         r[k]['z_score'] = np.nan_to_num(stts.zscore(r[k]['sse_mean']))
-    #         r[k]['rank'] = stts.rankdata(r[k]['sse_mean'])
-
     # list by dict
     def train(self, times):
         r = self.result
@@ -83,26 +47,8 @@ class Training:
                 r[k]['t'][i] = time_mean
             sses = list(r[k]['sse'].values())
             r[k]['zscore'] = np.nan_to_num(stts.zscore(sses))
-            r[k]['zscore'] = {k: v for k, v in enumerate(r[k]['zscore'])}
-            r[k]['rank'] = {k: v for k, v in enumerate(stts.rankdata(sses))}
-
-    # # all dict
-    # def train(self, times):
-    #     r = self.result
-    #     for k in r:
-    #         sse_means = []
-    #         for hparam in self.hparams:
-    #             run_results = [self.run(k, hparam) for _ in range(times)]
-    #             sse_mean, time_mean = np.mean(run_results, axis=0)
-    #             sse_means.append(sse_mean)
-    #             r[k][tuple(hparam)]['t'] = time_mean
-    #         sse_means = np.asarray(sse_means)
-    #         zscores = np.nan_to_num(stts.zscore(sse_means))
-    #         ranks = stts.rankdata(sse_means)
-    #         for i in range(self.hparams):
-    #             r[k]["sse"][i] = sse_means[i]
-    #             r[k]["zscore"][i] = zscores[i]
-    #             r[k]["rank"][i] = ranks[i]
+            r[k]['zscore'] = dict(enumerate(r[k]['zscore']))
+            r[k]['rank'] = dict(enumerate(stts.rankdata(sses)))
 
 
 class TrainGrasp(Training):

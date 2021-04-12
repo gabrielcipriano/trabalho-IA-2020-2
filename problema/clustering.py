@@ -5,7 +5,9 @@ Modulo da classe do problema de clustering.
 '''
 import random as rand
 import numpy as np
-from scipy.spatial.distance import cdist, sqeuclidean
+# from scipy.spatial.distance import cdist, sqeuclidean
+from scipy.spatial.distance import cdist
+
 
 from .utils import evaluate_dists_state, generate_labels_nbhood, get_diff_obs_state
 
@@ -235,9 +237,15 @@ class Clustering:
         nbhood = self.__init_evaluated_neighbourhood()
         nbhood['label'] = generate_labels_nbhood(labels, k)
 
+        aux = 0.
         for i, new_label in enumerate(nbhood['label']):
             old_distance = min_dists[i]
-            new_distance = sqeuclidean(self.data[i], centroids[new_label])
+            # new_distance = sqeuclidean(self.data[i], centroids[new_label])
+
+            # TODO: Testar linha abaixo
+            # Calculando a distantancia euclideana de maneira eficiente
+            aux = self.data[i] - centroids[new_label]
+            new_distance = np.dot(aux, aux)
 
             new_sse = sse - old_distance + new_distance
             nbhood[i]['sse'] = new_sse

@@ -11,10 +11,15 @@ def get_info_as_df(df, info, configs):
     infos = []
     for problem in df.keys():
         infos.append(df[problem][info].to_numpy())
-    infos = pd.DataFrame(np.asarray(infos), 
-                        index = df.keys(), 
-                        columns= configs)
-    return infos
+    infos = pd.DataFrame(np.asarray(infos), index=df.keys(), columns=configs)
+    return infos.T
+
+# def get_info_as_df(df, info, configs):
+#     infos = []
+#     for problem in df.keys():
+#         infos.append(df[problem][info].to_numpy())
+#     infos = pd.DataFrame(np.asarray(infos).T, columns=df.keys(), index=configs)
+#     return infos
 
 # %%
 def build_results_dataframe(data):
@@ -28,12 +33,8 @@ def build_results_dataframe(data):
     return pd.DataFrame(results, columns = results.keys())
 
 # %%
-
-# %%
 def plot_metodo_results(metodo_df, configs, name, hparam_names):
     df = metodo_df
-    configs = [tuple([round(i, 2) for i in l]) for l in configs]
-    # configs = [tuple(x) for x in configs]
 
     #  Getting zscore df and tempos df
     zscores = get_info_as_df(df, "zscore", configs)
@@ -41,15 +42,26 @@ def plot_metodo_results(metodo_df, configs, name, hparam_names):
 
 
     # boxplot zscores and tempos
-    figsize = (7.047, 5.022)
+    figsize = (7, 5)
     _, (ax1, ax2) = plt.subplots(ncols=2, sharey=True, figsize=figsize)
     ax1.set(xlabel='z-score', ylabel='Hiperparâmetros: (' + ', '.join(hparam_names) + ")")
     ax2.set(xlabel='Tempo')
-    sns.boxplot(data=zscores, ax=ax1, orient="h", palette="Set3")
-    sns.boxplot(data=tempos, ax=ax2,orient="h", palette="Set3")
+    sns.boxplot(data=zscores.T, ax=ax1, orient="h", palette="Set3")
+    sns.boxplot(data=tempos.T, ax=ax2,orient="h", palette="Set3")
     plt.suptitle(name)
     plt.tight_layout()
-    plt.savefig(name+'_zscore_and_time_plot.png',dpi=200)
+    plt.savefig(name+'_zscore_and_time_plot2.png',dpi=200)
+
+
+    # Calculando média dos z-scores e ranks das configurações
+    zscores.insert(-1,"mean", np.mean(zscores, axis=1))
+    ranks = get_info_as_df(df, "rank", configs)
+    ranks.insert(-1,"mean", np.mean(ranks, axis=1))
+    print(ranks.to_string())
+
+
+
+
         
 # %%
 def main():
@@ -58,6 +70,7 @@ def main():
         train_data = json.load(json_file)
     results = train_data["results"]
     configs = train_data["hparams"]
+
     info = {
         "sa": {
             "name": "Simulated Annealing",
@@ -72,13 +85,16 @@ def main():
             "param_names": ('tamPopulacao', 'tCross', 'tMut')
         },
     }
+    for metodo in configs.keys():
+        info[metodo]["configs"] = [tuple([round(i, 2) for i in l]) for l in configs[metodo]]
+    
 
     df = build_results_dataframe(results)
 
     metodos = results.keys()
     for m in metodos:
-        plot_metodo_results(df[m], configs[m], info[m]["name"], info[m]["param_names"])
-# %%
+        plot_metodo_results(df[m], info[m]["configs"], info[m]["name"], info[m]["param_names"])
+
 if __name__=="__main__":
     main()
 # %%
