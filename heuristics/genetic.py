@@ -5,18 +5,17 @@
             taxa_cross : chance de ocorrer crossover
             taxa_mutacao : chance de ocorrer mutação
 
-        Tipo : Baseada em Soluções Completas -> Busca Populacional 
 """
 import time
 import random as rand
 import numpy as np
 from problema.clustering import Clustering
 
-def ocorre(p):
-    """Retorna se um evento com chance p ocorre ou não
-    """
-    n = rand.random()
-    return  n <= p
+# def ocorre(p):
+#     """Retorna se um evento com chance p ocorre ou não
+#     """
+#     n = rand.random()
+#     return  n <= p
 
 def crossover(state1, state2):
     num_feat = len(state1)
@@ -63,21 +62,23 @@ def genetic(problem: Clustering, k, t_pop, taxa_cross, taxa_mutacao, t = 1., max
         # Realiza um numero aleatorio de crossovers e mutacoes, 
         # entre metade do tamanho e o tamanho da populacao
         for _ in range(1, rand.randrange(t_pop//2,t_pop)):
-            if end-start < t:
-                break
+            # if end-start < t:
+            #     break
             # Crossover
-            if ocorre(taxa_cross):
+            if taxa_cross >= rand.random():
                 x = rand.randrange(len(populacao))
                 y = rand.randrange(len(populacao))
-                while x == y:
-                    y = rand.randrange(len(populacao))
+                # while x == y:
+                #     y = rand.randrange(len(populacao))
+                if x == y:
+                    y = y-1
                 crossover(populacao[x], populacao[y])
             # Mutacao
-            if ocorre(taxa_mutacao):
+            if taxa_mutacao >= rand.random():
                 x = rand.randrange(len(populacao))
                 populacao[x] = problem.mutacao(populacao[x])
                 
-            end = time.process_time()
+            # end = time.process_time()
 
         melhor_da_geracao, melhor_sse_geracao = problem.melhor_da_geracao(populacao)
 

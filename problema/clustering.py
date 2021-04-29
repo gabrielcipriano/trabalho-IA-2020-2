@@ -112,10 +112,13 @@ class Clustering:
             rand_obs = rand.randrange(0, self.num_obs)
 
             new_labels[rand_obs] = get_diff_obs_state(labels[rand_obs], k)
-            new_state, has_members = self.update_centroids(new_labels,k)
 
-            if has_members.all():
-                populacao.append(new_state)
+            populacao.append(self.update_centroids_safe(state, new_labels, k))
+
+            # new_state, has_members = self.update_centroids(new_labels,k)
+
+            # if has_members.all():
+            #     populacao.append(new_state)
 
     def selecao(self, states):
         """ função de selecao por roleta (mantendo um unico sobrevivente na população)
@@ -138,6 +141,7 @@ class Clustering:
             if n >= prob[1] and n <= prob[2]:
                 states.clear()
                 states.append(prob[0])
+                break
 
     def mutacao(self, state):
         labels = self.assign_clusters(state)[0]

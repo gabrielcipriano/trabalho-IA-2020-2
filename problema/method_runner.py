@@ -1,5 +1,4 @@
 import numpy as np
-import itertools
 
 from scipy import stats as stts
 
@@ -11,26 +10,23 @@ from heuristics import grasp, simulated_annealing, genetic
 
 
 class MethodRunner:
-    def __init__(self, problem: Clustering, hparams, ks, time = 1.):
+    def __init__(self, hparams, time = 1.):
         self.hparams = hparams
-        self.problem = problem
-        self.ks = ks
         self.t = time
-        self.result = {k: {} for k in ks}
         # self.result = self.init_result()
 
-    def run(self, k, hparam):
+    def run(self, problem, k, hparam):
         raise Exception("NotImplementedException")
 
     # list by dict
-    def run_all(self, times):
-        r = self.result
+    def run_problem(self, problem, ks, times):
+        r = {k: {} for k in ks}
         for k in r:
             r[k]['sse'] = {}
             r[k]['t'] = {}
             for i, param in enumerate(self.hparams):
-                run_results = [self.run(k, param) for _ in range(times)]
-                # print(k, hparam, run_results)
+                run_results = [self.run(problem, k, param) for _ in range(times)]
+                print(k, param)
                 sse_mean, time_mean = np.mean(run_results, axis=0)
                 r[k]['sse'][i] = sse_mean
                 r[k]['t'][i] = time_mean
@@ -38,22 +34,23 @@ class MethodRunner:
             r[k]['zscore'] = np.nan_to_num(stts.zscore(sses))
             r[k]['zscore'] = dict(enumerate(r[k]['zscore']))
             r[k]['rank'] = dict(enumerate(stts.rankdata(sses)))
+        return r
 
 
 class GraspRunner(MethodRunner):
-    def run(self, k, hparam):
-        _, _, t, _, min_dists = grasp(self.problem, k, hparam['n_best'], hparam['n_iter'], self.t)
+    def run(self, problem, k, hparam):
+        _, _, t, _, min_dists = grasp(problem, k, hparam['n_best'], hparam['n_iter'], self.t)
         return (evaluate_dists_state(min_dists), t)
 
 class SARunner(MethodRunner):
-    def run(self, k, hparam):
-        centroids, t, = simulated_annealing(self.problem, k, hparam['t_zero'], hparam['alfa'], 
+    def run(self, problem, k, hparam):
+        centroids, t, = simulated_annealing(problem, k, hparam['t_zero'], hparam['alfa'], 
                                             hparam["n_iter"], min_t = 0.01,tempo = self.t)
-        _, min_dists = self.problem.assign_clusters(centroids)
+        _, min_dists = problem.assign_clusters(centroids)
         return (evaluate_dists_state(min_dists), t)
 
 class GeneticRunner(MethodRunner):
-    def run(self, k, hparam):
-        centroids, t, _ = genetic(self.problem, k, hparam['t_pop'], hparam['t_cross'], hparam['t_mut'], self.t)
-        _, min_dists = self.problem.assign_clusters(centroids)
+    def run(self, problem, k, hparam):
+        centroids, t, _ = genetic(problem, k, hparam['t_pop'], hparam['t_cross'], hparam['t_mut'], self.t)
+        _, min_dists = problem.assign_clusters(centroids)
         return (evaluate_dists_state(min_dists), t)

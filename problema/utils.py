@@ -3,6 +3,7 @@
 '''
 import random as rand
 import numpy as np
+import itertools
 
 
 def evaluate_dists_state(min_dists):
@@ -16,8 +17,9 @@ def get_diff_obs_state(current_label, k):
         Retorna uma label diferente da label atual entre as k disponiveis
     '''
     new_label = rand.randint(0, k-1)
-    while new_label == current_label:
-        new_label = rand.randint(0, k-1)
+    if new_label == current_label: new_label = (new_label + 1) % k
+    # while new_label == current_label:
+    #     new_label = rand.randint(0, k-1)
     return new_label
 
 def escolhe_melhores(neighbourhood, num_best):
@@ -36,3 +38,4 @@ def generate_labels_nbhood(labels, k):
         # Modifica o estado (label) do ponto i
         nbhood[i] = get_diff_obs_state(label, k)
     return nbhood
+
