@@ -139,6 +139,7 @@ def main():
                 "gen" : gen_iris.hparams
                 }
 
+    print("Training started")
     grasp_iris.train(10)
     grasp_wine.train(10)
     results["grasp"]["iris"] = grasp_iris.result

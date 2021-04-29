@@ -54,10 +54,11 @@ def plot_metodo_results(metodo_df, configs, name, hparam_names):
 
 
     # Calculando média dos z-scores e ranks das configurações
-    zscores.insert(-1,"mean", np.mean(zscores, axis=1))
+    # zscores.insert(-1,"mean", np.mean(zscores, axis=1))
+    zscores["mean"] = np.mean(zscores, axis=1)
     ranks = get_info_as_df(df, "rank", configs)
-    ranks.insert(-1,"mean", np.mean(ranks, axis=1))
-    print(ranks.to_string())
+    ranks["mean"] = np.mean(ranks, axis=1) 
+    print(zscores.to_string())
 
 
 
@@ -66,7 +67,7 @@ def plot_metodo_results(metodo_df, configs, name, hparam_names):
 # %%
 def main():
     train_data = {}
-    with open('../train_results_9april.json') as json_file:
+    with open('../train_results_11april.json') as json_file:
         train_data = json.load(json_file)
     results = train_data["results"]
     configs = train_data["hparams"]

@@ -5,7 +5,7 @@
             taxa_cross : chance de ocorrer crossover
             taxa_mutacao : chance de ocorrer mutação
 
-        Tipo : Baseada em Soluções Completas -> Busca Populacional -> Computação Evolutiva
+        Tipo : Baseada em Soluções Completas -> Busca Populacional 
 """
 import time
 import random as rand
@@ -43,6 +43,9 @@ def genetic(problem: Clustering, k, t_pop, taxa_cross, taxa_mutacao, t = 1., max
     """
     start = time.process_time()
     end = 0
+
+    if k == 1:
+        return [problem.get_centroid()], time.process_time()-start, 1
 
     melhor = problem.generate_initial_centroids(k)
     populacao = [melhor]
