@@ -67,22 +67,3 @@ class KmeansRunner(MethodRunner):
 
         _, min_dists = problem.assign_clusters(kmeans.cluster_centers_)
         return (evaluate_dists_state(min_dists), time_.process_time() - start)
-
-    # def run_problem(self, problem: Clustering, ks, times):
-    #     r = {k: {} for k in ks}
-    #     for k in r:
-    #         r[k]['sse'] = {}
-    #         r[k]['t'] = {}
-
-    #         run_results = [self.run(problem, k) for _ in range(times)]
-    #         print(k)
-
-    #         sse_mean, time_mean = np.mean(run_results, axis=0)
-    #         r[k]['sse'][0] = sse_mean
-    #         r[k]['t'][0] = time_mean
-
-    #         sses = list(r[k]['sse'].values())
-    #         r[k]['zscore'] = np.nan_to_num(stts.zscore(sses))
-    #         r[k]['zscore'] = dict(enumerate(r[k]['zscore']))
-    #         r[k]['rank'] = dict(enumerate(stts.rankdata(sses)))
-    #     return r

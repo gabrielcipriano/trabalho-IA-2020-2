@@ -11,22 +11,17 @@ import random as rand
 import numpy as np
 from problema.clustering import Clustering
 
-# def ocorre(p):
-#     """Retorna se um evento com chance p ocorre ou não
-#     """
-#     n = rand.random()
-#     return  n <= p
 
 def crossover(state1, state2):
-    num_feat = len(state1)
+    num_clusters = len(state1)
     # Quantidade aleatoria de crossovers
-    qtd = rand.randint(0, num_feat)
+    qtd = rand.randint(0, num_clusters)
 
     for _ in range(qtd):
-        gene = rand.randrange(num_feat)
-        aux = state1[gene]
-        state1[gene] = state2[gene]
-        state2[gene] = aux
+        cromossomo = rand.randrange(num_clusters)
+        aux = state1[cromossomo]
+        state1[cromossomo] = state2[cromossomo]
+        state2[cromossomo] = aux
 
 
 def genetic(problem: Clustering, k, t_pop, taxa_cross, taxa_mutacao, t = 1., max_sem_melhora = 30, max_iter = 3000):

@@ -115,11 +115,6 @@ class Clustering:
 
             populacao.append(self.update_centroids_safe(state, new_labels, k))
 
-            # new_state, has_members = self.update_centroids(new_labels,k)
-
-            # if has_members.all():
-            #     populacao.append(new_state)
-
     def selecao(self, states):
         """ função de selecao por roleta (mantendo um unico sobrevivente na população)
                 1º: calcula as probabilidades de cada um sobreviver
